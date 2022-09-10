@@ -21,11 +21,11 @@ interface ArithmeticInst {
   to: Registry
 }
 
-interface HLTInst {
+interface SimpleInst {
   opcode: typeof HLT
 }
 
-type Instruction = MOVInst | ArithmeticInst | HLTInst
+type Instruction = MOVInst | ArithmeticInst | SimpleInst
 
 const numberOrRegistry = (value: string): number | Registry => Number.isNaN(Number.parseInt(value)) ? value as Registry : Number.parseInt(value)
 
