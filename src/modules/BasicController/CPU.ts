@@ -1,5 +1,5 @@
 import { Registry } from './Registry'
-import { MOV, ADD, SUB, HLT } from './Opcode'
+import { MOV, ADD, SUB, MUL, DIV, MOD, HLT } from './Opcode'
 import { parseInstruction } from './Instructions'
 
 class BasicController {
@@ -21,6 +21,9 @@ class BasicController {
         case MOV: this.mov(currentInstruction.from, currentInstruction.to); break
         case ADD: this.add(currentInstruction.left, currentInstruction.right, currentInstruction.to); break
         case SUB: this.sub(currentInstruction.left, currentInstruction.right, currentInstruction.to); break
+        case MUL: this.mul(currentInstruction.left, currentInstruction.right, currentInstruction.to); break
+        case DIV: this.div(currentInstruction.left, currentInstruction.right, currentInstruction.to); break
+        case MOD: this.mod(currentInstruction.left, currentInstruction.right, currentInstruction.to); break
       }
 
       this.instructionPointer += 1
@@ -61,6 +64,21 @@ class BasicController {
 
   private sub (left: number | Registry, right: number | Registry, to: Registry): void {
     const sum = this.numberOrRegistryValue(left) - this.numberOrRegistryValue(right)
+    this.writeRegistry(to, sum)
+  }
+
+  private mul (left: number | Registry, right: number | Registry, to: Registry): void {
+    const sum = this.numberOrRegistryValue(left) * this.numberOrRegistryValue(right)
+    this.writeRegistry(to, sum)
+  }
+
+  private div (left: number | Registry, right: number | Registry, to: Registry): void {
+    const sum = this.numberOrRegistryValue(left) / this.numberOrRegistryValue(right)
+    this.writeRegistry(to, sum)
+  }
+
+  private mod (left: number | Registry, right: number | Registry, to: Registry): void {
+    const sum = this.numberOrRegistryValue(left) % this.numberOrRegistryValue(right)
     this.writeRegistry(to, sum)
   }
 }

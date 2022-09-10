@@ -1,12 +1,5 @@
 import { Registry } from './Registry'
-import { MOV, ADD, SUB, HLT } from './Opcode'
-
-const Opcodes = [
-  'MOV',
-  'ADD',
-  'HLT',
-  'SUB'
-]
+import { MOV, ADD, SUB, MUL, DIV, MOD, HLT } from './Opcode'
 
 interface MOVInst {
   opcode: typeof MOV
@@ -15,7 +8,7 @@ interface MOVInst {
 }
 
 interface ArithmeticInst {
-  opcode: typeof ADD | typeof SUB
+  opcode: typeof ADD | typeof SUB | typeof MUL | typeof DIV | typeof MOD
   left: number | Registry
   right: number | Registry
   to: Registry
@@ -32,28 +25,30 @@ const numberOrRegistry = (value: string): number | Registry => Number.isNaN(Numb
 const parseInstruction = (line: string): Instruction => {
   const [opcode, ...rest] = line.split(' ')
 
-  const op = Opcodes.find(value => value === opcode.toUpperCase())
-  switch (op) {
-    case 'MOV': {
+  switch (opcode) {
+    case MOV: {
       const from = numberOrRegistry(rest[0])
       const to = rest[1] as Registry
-      return { opcode: op, from, to }
+      return { opcode, from, to }
     }
 
-    case 'ADD':
-    case 'SUB': {
+    case ADD:
+    case SUB:
+    case MUL:
+    case DIV:
+    case MOD: {
       const left = numberOrRegistry(rest[0])
       const right = numberOrRegistry(rest[1])
       const to = rest[2] as Registry
 
-      return { opcode: op, left, right, to }
+      return { opcode, left, right, to }
     }
 
-    case 'HLT': {
-      return { opcode: op }
+    case HLT: {
+      return { opcode }
     }
 
-    default: throw Error(`Invalid opcode: ${op}`)
+    default: throw Error(`Invalid opcode: ${opcode}`)
   }
 }
 
