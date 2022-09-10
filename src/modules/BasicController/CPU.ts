@@ -1,18 +1,22 @@
 import { Registry } from './Registry'
-import { MOV, ADD, SUB, MUL, DIV, MOD, HLT } from './Opcode'
-import { parseInstruction } from './Instructions'
+import { MOV, ADD, SUB, MUL, DIV, MOD, HLT, JMP, SEC } from './Opcode'
+import { Instruction, parseInstruction } from './Instructions'
 
 class BasicController {
   // Registries
   AX = 0
   BX = 0
 
-  instructions: string[] = []
+  private instructions: Instruction[] = []
   private instructionPointer = 0
+
+  setInstructions (instructions: string[] = []): void {
+    this.instructions = instructions.map(instruction => parseInstruction(instruction))
+  }
 
   run (): void {
     while (true) {
-      const currentInstruction = parseInstruction(this.instructions[this.instructionPointer])
+      const currentInstruction = this.instructions[this.instructionPointer]
 
       // Handle HLT here, due to conflicting break statement in switch
       if (currentInstruction.opcode === HLT) break
@@ -24,6 +28,8 @@ class BasicController {
         case MUL: this.mul(currentInstruction.left, currentInstruction.right, currentInstruction.to); break
         case DIV: this.div(currentInstruction.left, currentInstruction.right, currentInstruction.to); break
         case MOD: this.mod(currentInstruction.left, currentInstruction.right, currentInstruction.to); break
+        case JMP: this.jmp(currentInstruction.label); break
+        case SEC: break
       }
 
       this.instructionPointer += 1
@@ -80,6 +86,11 @@ class BasicController {
   private mod (left: number | Registry, right: number | Registry, to: Registry): void {
     const sum = this.numberOrRegistryValue(left) % this.numberOrRegistryValue(right)
     this.writeRegistry(to, sum)
+  }
+
+  private jmp (sectionLabel: string) {
+    const pointer = this.instructions.findIndex(instruction => instruction.opcode === SEC && instruction.label === sectionLabel)
+    this.instructionPointer = pointer
   }
 }
 

@@ -1,5 +1,5 @@
 import { Registry } from './Registry'
-import { MOV, ADD, SUB, MUL, DIV, MOD, HLT } from './Opcode'
+import { MOV, ADD, SUB, MUL, DIV, MOD, JMP, SEC, HLT } from './Opcode'
 
 interface MOVInst {
   opcode: typeof MOV
@@ -18,9 +18,14 @@ interface SimpleInst {
   opcode: typeof HLT
 }
 
-type Instruction = MOVInst | ArithmeticInst | SimpleInst
+interface LabeledInst {
+  opcode: typeof JMP | typeof SEC
+  label: string
+}
 
-const numberOrRegistry = (value: string): number | Registry => Number.isNaN(Number.parseInt(value)) ? value as Registry : Number.parseInt(value)
+type Instruction = MOVInst | ArithmeticInst | SimpleInst | LabeledInst
+
+const numberOrRegistry = (value: string): number | Registry => Number.isNaN(Number.parseInt(value)) ? value.toUpperCase() as Registry : Number.parseInt(value)
 
 const parseInstruction = (line: string): Instruction => {
   const [opcode, ...rest] = line.split(' ')
@@ -42,6 +47,11 @@ const parseInstruction = (line: string): Instruction => {
       const to = rest[2] as Registry
 
       return { opcode, left, right, to }
+    }
+
+    case JMP:
+    case SEC: {
+      return { opcode, label: rest[0] }
     }
 
     case HLT: {
